@@ -1,6 +1,8 @@
 package br.com.qwasolucoes.mentoria.implementacoes.logica_programacao;
 
 
+import java.util.Arrays;
+
 import br.com.qwasolucoes.mentoria.interfaces.logica_programacao.LogicaProgramacaoFaturamento;
 
 
@@ -41,32 +43,15 @@ public class LogicaProgramacaoFaturamentoProvider implements LogicaProgramacaoFa
     @Override
     public int[] calcularFaturamentoMensal() {
         int[] arrayReturn2 = new int[4];
-        int fatMes1 = 0, fatMes2 = 0, fatMes3 = 0, fatMes4 = 0;
 
-        for(int i = 0; i < array.length; i++) {
-            if (i >=0 && i<4){
-                fatMes1 += array[i];
-            }
-            else if (i >3 && i<=7){
-                fatMes2 += array[i];
-            }
-            else if (i>=8 && i<=11){
-                fatMes3 += array[i];
-            } else if (i >= 11 && i<=15) {
-                fatMes4 += array[i];
-            }
-
-        }
-        arrayReturn2[0] = fatMes1;
-        arrayReturn2[1] = fatMes2;
-        arrayReturn2[2] = fatMes3;
-        arrayReturn2[3] = fatMes4;
-
-        //NAO FICOU BOM, MAS FUNCIONOU. Revisar!
-
+        arrayReturn2[0] = soma(array, 0, 3);
+        arrayReturn2[1] = soma(array, 4, 7);
+        arrayReturn2[2] = soma(array, 8, 11);
+        arrayReturn2[3] = soma(array, 12, 15);
 
         return arrayReturn2;
     }
+
 
     @Override
     public int[] calcularFaturamentoBimestral() {
@@ -100,64 +85,39 @@ public class LogicaProgramacaoFaturamentoProvider implements LogicaProgramacaoFa
 
     @Override
     public int[] calcularFaturamentoMedioDoMes() {
-        //4
-        int[] arrayReturn3 = new int[4];
-        int tempo =4;
-        int fatMes1 = 0, fatMes2 = 0, fatMes3 = 0, fatMes4 = 0;
+        int semanasPorMes = 4;
+        int mesesNoAno = 4;
+        int[] arrayReturn = new int[mesesNoAno];
 
+        for (int mes = 0; mes < mesesNoAno; mes++) {
+            int inicioDaSemana = mes * semanasPorMes;
+            int fimDaSemana = inicioDaSemana + semanasPorMes;
+            int faturamentoTotal = 0;
 
+            for (int semana = inicioDaSemana; semana < fimDaSemana; semana++) {
+                faturamentoTotal += array[semana];
+            }
 
-        for(int i = 0; i < array.length; i++) {
-            if (i >=0 && i<4){
-                fatMes1 += array[i];
-            }
-            else if (i >3 && i<=7){
-                fatMes2 += array[i];
-            }
-            else if (i>=8 && i<=11){
-                fatMes3 += array[i];
-            } else if (i >= 11 && i<=15) {
-                fatMes4 += array[i];
-            }
+            arrayReturn[mes] = faturamentoTotal / semanasPorMes;
         }
 
-        arrayReturn3[0] = fatMes1/4;
-        arrayReturn3[1] = fatMes2/4;
-        arrayReturn3[2] = fatMes3/4;
-        arrayReturn3[3] = fatMes4/4;
-
-
-        return  arrayReturn3;
+        return arrayReturn;
     }
+
 
     @Override
     public int[] calcularFaturamentoMedioPorSemanaDoMes() {
         int[] arrayReturn4 = new int[4];
-        int fatSem1 = 0, fatSem2 = 0, fatSem3= 0, fatSem4 = 0, cont =4;
+        int weekSize = array.length / 4;
 
-        for(int i = 0; i < array.length; i++){
-            if (i == 0 || i == cont || i==cont*2 || i == cont*3){
-                fatSem1 += array[i];
-            }
-            if (i == 1 || i == cont+1 || i==(cont*2)+1 || i == (cont*3)+1){
-                fatSem2 += array[i];
-            }
-
-            if (i == 2 || i == cont+2 || i==(cont*2)+2 || i == (cont*3)+2){
-                fatSem3 += array[i];
-            }
-
-            if (i == 3 || i == cont+3 || i==(cont*2)+3 || i == (cont*3)+3){
-                fatSem4 += array[i];
-            }
+        for(int i = 0; i < array.length; i++) {
+            int weekIndex = i / weekSize;
+            arrayReturn4[weekIndex] += array[i];
         }
-        arrayReturn4[0] = fatSem1/4;
-        arrayReturn4[1] = fatSem2/4;
-        arrayReturn4[2] = fatSem3/4;
-        arrayReturn4[3] = fatSem4/4;
 
-        return arrayReturn4;
+        return Arrays.stream(arrayReturn4).map(i -> i / weekSize).toArray();
     }
+
 
     @Override
     public int obterMesMaiorFaturamento() {
@@ -187,4 +147,13 @@ public class LogicaProgramacaoFaturamentoProvider implements LogicaProgramacaoFa
         }
         return menor;
     }
+    
+    private int soma(int[] array, int inicio, int fim) {
+        int soma = 0;
+        for (int i = inicio; i <= fim; i++) {
+            soma += array[i];
+        }
+        return soma;
+    }
+
 }

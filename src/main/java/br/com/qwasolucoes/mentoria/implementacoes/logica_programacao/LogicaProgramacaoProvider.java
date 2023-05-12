@@ -1,9 +1,5 @@
 package br.com.qwasolucoes.mentoria.implementacoes.logica_programacao;
 
-/*
-PRIMEIRAMENTE BOM DIA, SEGUNDO SÓ POR DEUS.
- */
-
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -314,19 +310,15 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao {
 	}
 
 	@Override
-	public String[] antecessorSucessorPor(String[] array, String valor) {
-
-		String[] arrayReturn91 = new String[2];
-
-		for (int i = 0; i < array.length; i++) {
-
-			if (array[i].equals(valor)) {
-				arrayReturn91[0] = array[i - 1];
-				arrayReturn91[1] = array[i + 1];
-			}
-		}
-		return arrayReturn91;
+	public String[] antecessorSucessorPor(final String[] array, final String valor) {
+	    int index = IntStream.range(0, array.length).filter(i -> array[i].equals(valor)).findFirst().orElse(-1);
+	    if (index == -1 || index == 0) {
+	        return new String[] {};
+	    } else {
+	        return new String[] {array[index-1], array[index+1]};
+	    }
 	}
+
 
 	@Override
 	public List<Integer> numerosPares(Integer limite) {
@@ -460,26 +452,25 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao {
 
 	@Override
 	public int[] primeiraUltimaMediaPosicaoArray(final Integer limite) {
-	    int[] array = new int[3];
+		int[] array = new int[3];
 
-	    if (limite < 1) {
-	        return array;
-	    }
+		if (limite < 1) {
+			return array;
+		}
 
-	    for (int i = 0; i < limite; i++) {
-	        array[i] = i;
-	    }
+		for (int i = 0; i < limite; i++) {
+			array[i] = i;
+		}
 
-	    array[0] = 0;
-	    array[1] = limite - 1;
-	    int sum = 0;
-	    for (int i = 0; i < limite; i++) {
-	        sum += array[i];
-	    }
-	    array[2] = sum / limite;
-	    return array;
+		array[0] = 0;
+		array[1] = limite - 1;
+		int sum = 0;
+		for (int i = 0; i < limite; i++) {
+			sum += array[i];
+		}
+		array[2] = sum / limite;
+		return array;
 	}
-
 
 	@Override
 	public List<Integer> removerInteirosDuplicados(List<Integer> numeros) {

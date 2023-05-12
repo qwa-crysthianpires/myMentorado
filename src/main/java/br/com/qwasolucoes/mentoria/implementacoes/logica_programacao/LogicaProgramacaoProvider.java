@@ -9,28 +9,35 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 import br.com.qwasolucoes.mentoria.interfaces.logica_programacao.LogicaProgramacao;
 import br.com.qwasolucoes.mentoria.model.Funcionario;
 
-public class LogicaProgramacaoProvider implements LogicaProgramacao{
+public class LogicaProgramacaoProvider implements LogicaProgramacao {
 
 	SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
 
 	@Override
 	public List<Funcionario> conversaoStringParaPessoa(List<String> lista) throws ParseException {
 
-		//foreach list
+		// foreach list
 		List<Funcionario> listaFuncionario = new ArrayList<>();
 
 		for (String funcionario : lista) {
 
 			/*
-			criando objeto funcionario a partir da lista que recebi como parametro
-			filtrando a string com substring e limpando com trim, para setar sem espaços.
-
-			*/
+			 * criando objeto funcionario a partir da lista que recebi como parametro
+			 * filtrando a string com substring e limpando com trim, para setar sem espaços.
+			 * 
+			 */
 
 			Funcionario func = new Funcionario();
 
@@ -53,36 +60,34 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 			String profissaoFuncionario = funcionario.substring(49, 89).trim();
 			func.setProfissao(profissaoFuncionario);
 
-
 			String cpfOrCnpjFuncionario = funcionario.substring(89, 103).trim();
 
 			String cpfEditado;
-			if(cpfOrCnpjFuncionario.length() == 11){
-				cpfEditado = funcionario.substring(89, 92) + "." + funcionario.substring(92, 95) + "." + funcionario.substring(95, 98) + "-" + funcionario.substring(98, 100);
-			}else {
-				cpfEditado = funcionario.substring(89, 91) + "." + funcionario.substring(91, 94) + "." + funcionario.substring(94, 97) + "/" + funcionario.substring(97, 101) + "-" + funcionario.substring(101, 103);
+			if (cpfOrCnpjFuncionario.length() == 11) {
+				cpfEditado = funcionario.substring(89, 92) + "." + funcionario.substring(92, 95) + "."
+						+ funcionario.substring(95, 98) + "-" + funcionario.substring(98, 100);
+			} else {
+				cpfEditado = funcionario.substring(89, 91) + "." + funcionario.substring(91, 94) + "."
+						+ funcionario.substring(94, 97) + "/" + funcionario.substring(97, 101) + "-"
+						+ funcionario.substring(101, 103);
 			}
 			func.setCpfCnpj(cpfEditado);
 
 			String escolaridadeFuncionario = funcionario.substring(103, 143).trim();
 			func.setEscolaridade(escolaridadeFuncionario);
 
-			//save
+			// save
 
-
-
-			//calculoIdade
-			LocalDate test = func.getDataNascimento().toInstant()
-					.atZone(ZoneId.systemDefault())
-					.toLocalDate();
+			// calculoIdade
+			LocalDate test = func.getDataNascimento().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
 			int calculoIdadeFuncionario = Funcionario.calculaIdade(test);
 			func.setIdade(calculoIdadeFuncionario);
 
-			//MaiorIdade
+			// MaiorIdade
 			func.setMaiorIdade(func.getIdade() > 18);
 
-			//calculo Taxa
+			// calculo Taxa
 
 			String salarioFuncionario = funcionario.substring(143, 153).trim();
 
@@ -90,49 +95,45 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 			func.calculoTaxa(calculoIdadeFuncionario);
 
-			//calculo salario
+			// calculo salario
 			func.setSalario(salario.subtract(func.getTaxa().multiply(salario)));
-
-
 
 			listaFuncionario.add(func);
 		}
 		return listaFuncionario;
 	}
 
-
 	@Override
 	public List<String> conversaoPessoaParaString(List<Funcionario> pessoas) {
 
-		//StringBuilder nomeFuncionario = new StringBuilder();
+		// StringBuilder nomeFuncionario = new StringBuilder();
 		List<String> listReturn = new ArrayList<>();
 
 		/*
-		 * for para cada index dessa lista
-		 * VariavelFuncionario adicionar o index
-		 * tratar os espaços
+		 * for para cada index dessa lista VariavelFuncionario adicionar o index tratar
+		 * os espaços
 		 *
-		 * */
+		 */
 
+		for (Funcionario f : pessoas) {
 
-		for(Funcionario f : pessoas){
+			// Carlos ajudou a refatorar tudo na mesma linha
 
-			//Carlos ajudou a refatorar tudo na mesma linha
+			listReturn.add(Funcionario.validacaoString(f.getNome(), 20));
+			listReturn.add(Funcionario.validacaoString(f.getSobrenome(), 20));
+			listReturn.add(Funcionario.validacaoString(f.getDataNascimento().toString(), 20));
+			listReturn.add(Funcionario.validacaoString(f.getSexo(), 1));
+			listReturn.add(Funcionario.validacaoString(f.getProfissao(), 40));
+			listReturn.add(Funcionario.validacaoString(f.getCpfCnpj(), 14));
+			listReturn.add(Funcionario.validacaoString(f.getEscolaridade(), 40));
+			listReturn.add(Funcionario.validacaoString(f.getSalario().toString(), 10));
 
-			listReturn.add(Funcionario.validacaoString(f.getNome(),20));
-			listReturn.add(Funcionario.validacaoString(f.getSobrenome(),20));
-			listReturn.add(Funcionario.validacaoString(f.getDataNascimento().toString(),20));
-			listReturn.add(Funcionario.validacaoString(f.getSexo(),1));
-			listReturn.add(Funcionario.validacaoString(f.getProfissao(),40));
-			listReturn.add(Funcionario.validacaoString(f.getCpfCnpj(),14));
-			listReturn.add(Funcionario.validacaoString(f.getEscolaridade(),40));
-			listReturn.add(Funcionario.validacaoString(f.getSalario().toString(),10));
-
-			/* ANTES
-			String sobrenomeFuncionario = f.getSobrenome();
-			String sobrenomenomeFuncionarioFinal = Funcionario.validacaoString(nomeFuncionario,20);
-			listReturn.add(sobreNomeFuncionarioFinal);
-			*/
+			/*
+			 * ANTES String sobrenomeFuncionario = f.getSobrenome(); String
+			 * sobrenomenomeFuncionarioFinal =
+			 * Funcionario.validacaoString(nomeFuncionario,20);
+			 * listReturn.add(sobreNomeFuncionarioFinal);
+			 */
 		}
 		return listReturn;
 	}
@@ -142,7 +143,7 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 		Funcionario func = new Funcionario();
 
-		//for( String pessoa : array ) {
+		// for( String pessoa : array ) {
 		func.setNome(array[0]);
 		func.setSobrenome(array[1]);
 		func.setDataNascimento(sdf.parse(array[2]));
@@ -151,21 +152,19 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 		func.setCpfCnpj(array[5]);
 		func.setEscolaridade(array[6]);
 
-		//calculoIdade
-		LocalDate test = func.getDataNascimento().toInstant()
-				.atZone(ZoneId.systemDefault())
-				.toLocalDate();
+		// calculoIdade
+		LocalDate test = func.getDataNascimento().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
 		int calculoIdadeFuncionario = Funcionario.calculaIdade(test);
 		func.setIdade(calculoIdadeFuncionario);
 
-		//MaiorIdade
+		// MaiorIdade
 		func.setMaiorIdade(func.getIdade() > 18);
 
-		//calculo TAXA
+		// calculo TAXA
 		func.calculoTaxa(calculoIdadeFuncionario);
 
-		//CALCULO SALARAIO
+		// CALCULO SALARAIO
 		func.setSalario(new BigDecimal(array[7]));
 
 		BigDecimal salario = func.getSalario();
@@ -175,52 +174,48 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	}
 
 	@Override
-	public List<Funcionario> conversaoArrayMultidimensionalParaPessoa(String[][] arrayMultidimensional) throws ParseException {
-
-
+	public List<Funcionario> conversaoArrayMultidimensionalParaPessoa(String[][] arrayMultidimensional)
+			throws ParseException {
 
 		List<Funcionario> listFuncionario4Return = new ArrayList<>();
 
-		for(int i =0; i < arrayMultidimensional.length;i++) {
+		for (int i = 0; i < arrayMultidimensional.length; i++) {
 
 			Funcionario func = new Funcionario();
 
-				func.setNome(arrayMultidimensional[i][0]);
-				func.setSobrenome(arrayMultidimensional[i][1]);
-				func.setDataNascimento(sdf.parse(arrayMultidimensional[i][2]));
-				func.setSexo(arrayMultidimensional[i][3]);
-				func.setProfissao(arrayMultidimensional[i][4]);
-				func.setCpfCnpj(arrayMultidimensional[i][5]);
-				func.setEscolaridade(arrayMultidimensional[i][6]);
+			func.setNome(arrayMultidimensional[i][0]);
+			func.setSobrenome(arrayMultidimensional[i][1]);
+			func.setDataNascimento(sdf.parse(arrayMultidimensional[i][2]));
+			func.setSexo(arrayMultidimensional[i][3]);
+			func.setProfissao(arrayMultidimensional[i][4]);
+			func.setCpfCnpj(arrayMultidimensional[i][5]);
+			func.setEscolaridade(arrayMultidimensional[i][6]);
 
-				//calculoIdade
-				LocalDate test = func.getDataNascimento().toInstant()
-						.atZone(ZoneId.systemDefault())
-						.toLocalDate();
+			// calculoIdade
+			LocalDate test = func.getDataNascimento().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-				int calculoIdadeFuncionario = Funcionario.calculaIdade(test);
-				func.setIdade(calculoIdadeFuncionario);
+			int calculoIdadeFuncionario = Funcionario.calculaIdade(test);
+			func.setIdade(calculoIdadeFuncionario);
 
-				//MaiorIdade
-				func.setMaiorIdade(func.getIdade() > 18);
+			// MaiorIdade
+			func.setMaiorIdade(func.getIdade() > 18);
 
+			// Set salario
+			String salarioString = arrayMultidimensional[i][7].trim();
+			BigDecimal salario = new BigDecimal(salarioString);
+			func.setSalario(salario);
 
-				// Set salario
-				String salarioString = arrayMultidimensional[i][7].trim();
-				BigDecimal salario = new BigDecimal(salarioString);
-				func.setSalario(salario);
+			// CALCULADO TAXA PELA IDADE
+			func.calculoTaxa(calculoIdadeFuncionario);
 
-				// CALCULADO TAXA PELA IDADE
-				func.calculoTaxa(calculoIdadeFuncionario);
+			// CALCULO TAXA
+			BigDecimal salarioFuncionario = func.getSalario();
+			BigDecimal taxaFuncionario = func.getTaxa();
 
-				//CALCULO TAXA
-				BigDecimal salarioFuncionario = func.getSalario();
-				BigDecimal taxaFuncionario = func.getTaxa();
+			BigDecimal taxaFinal = taxaFuncionario.multiply(salarioFuncionario);
+			func.setTaxa(taxaFinal);
 
-				BigDecimal taxaFinal = taxaFuncionario.multiply(salarioFuncionario);
-				func.setTaxa(taxaFinal);
-
-				listFuncionario4Return.add(func);
+			listFuncionario4Return.add(func);
 		}
 		return listFuncionario4Return;
 	}
@@ -228,56 +223,55 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	@Override
 	public int[][] arrayMultidimensionalParesImparesPrimosResto(int[] array, int numeroDivisaoResto) {
 
-		int qtdLinhas=0;
+		int qtdLinhas = 0;
 		int cont = 0;
 
-		for (int i = 0; i < array.length; i++) {qtdLinhas +=1;}
+		for (int i = 0; i < array.length; i++) {
+			qtdLinhas += 1;
+		}
 		int[][] arrayReturn94 = new int[qtdLinhas][4];
 
-		for(int numero: array) {
+		for (int numero : array) {
 			if (numero % 2 == 0) {
 				arrayReturn94[cont][0] = numero;
 				arrayReturn94[cont][1] = 0;
-			}else {
+			} else {
 				arrayReturn94[cont][0] = 0;
 				arrayReturn94[cont][1] = numero;
 			}
 
-			//primo
-			if(isPrime(numero)) {
+			// primo
+			if (isPrime(numero)) {
 				arrayReturn94[cont][2] = numero;
-			}else{
+			} else {
 				arrayReturn94[cont][2] = 0;
 			}
 
-
-			//resto
+			// resto
 			int x = numero % numeroDivisaoResto;
 			arrayReturn94[cont][3] = x;
-			cont+=1;
+			cont += 1;
 
-
-		}return arrayReturn94;
+		}
+		return arrayReturn94;
 	}
 
 	@Override
 	public String[] arrayMultidimensionalPorPosicoes(String[][] arrayMultidimensional, int coluna, int linha) {
 
-			String[] arrayReturn94 = new String[4];
+		String[] arrayReturn94 = new String[4];
 
-			try{
-				arrayReturn94[0] = arrayMultidimensional[coluna][linha-1];
-				arrayReturn94[1] = arrayMultidimensional[coluna][linha+1];
-				arrayReturn94[2] = arrayMultidimensional[coluna-1][linha];
-				arrayReturn94[3] = arrayMultidimensional[coluna+1][linha];
+		try {
+			arrayReturn94[0] = arrayMultidimensional[coluna][linha - 1];
+			arrayReturn94[1] = arrayMultidimensional[coluna][linha + 1];
+			arrayReturn94[2] = arrayMultidimensional[coluna - 1][linha];
+			arrayReturn94[3] = arrayMultidimensional[coluna + 1][linha];
 
-			}catch (Exception e){e.getMessage();}
+		} catch (Exception e) {
+			e.getMessage();
+		}
 
-
-
-
-
-			return arrayReturn94;
+		return arrayReturn94;
 	}
 
 	@Override
@@ -287,22 +281,19 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 		for (int i = 0; i < arrayMultidimensional.length; i++) {
 
-			for(int j = 0; j < arrayMultidimensional.length; j++) {
+			for (int j = 0; j < arrayMultidimensional.length; j++) {
 
-				if (arrayMultidimensional[i][j].equals(valor)){
+				if (arrayMultidimensional[i][j].equals(valor)) {
 
 					try {
 						arrayReturn93[0] = arrayMultidimensional[i][j - 1];
-					}
-					catch(Exception e){
+					} catch (Exception e) {
 						System.out.println("Antecessor nulo!");
 					}
 
-					try{
+					try {
 						arrayReturn93[1] = arrayMultidimensional[i][j + 1];
-					}
-					catch(Exception e)
-					{
+					} catch (Exception e) {
 						System.out.println("Sucesssor nulo!");
 					}
 				}
@@ -316,7 +307,7 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 		String[] arrayReturn92 = new String[2];
 
-		arrayReturn92[0] = array[posicao-2];
+		arrayReturn92[0] = array[posicao - 2];
 		arrayReturn92[1] = array[posicao];
 
 		return arrayReturn92;
@@ -327,11 +318,11 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 		String[] arrayReturn91 = new String[2];
 
-		for (int i = 0; i < array.length; i++){
+		for (int i = 0; i < array.length; i++) {
 
-			if (array[i].equals(valor)){
-				arrayReturn91[0] =  array[i-1];
-				arrayReturn91[1] =  array[i+1];
+			if (array[i].equals(valor)) {
+				arrayReturn91[0] = array[i - 1];
+				arrayReturn91[1] = array[i + 1];
 			}
 		}
 		return arrayReturn91;
@@ -342,8 +333,8 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 		List<Integer> arrayReturn90 = new ArrayList<>();
 
-		for (int i = 0; i <= limite; i++){
-			if (i % 2==0){
+		for (int i = 0; i <= limite; i++) {
+			if (i % 2 == 0) {
 				arrayReturn90.add(i);
 			}
 		}
@@ -354,22 +345,24 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	public List<Integer> numerosImpares(Integer limite) {
 		List<Integer> arrayReturn90 = new ArrayList<>();
 
-		for (int i = 0; i <= limite; i++){
+		for (int i = 0; i <= limite; i++) {
 
-			if (i % 2==1){
+			if (i % 2 == 1) {
 				arrayReturn90.add(i);
 			}
 		}
 		return arrayReturn90;
 	}
 
-
 	@Override
 	public List<Integer> numerosPrimos(Integer limite) {
 		List<Integer> arrayReturn89 = new ArrayList<>();
-		for (int i =0; i <= limite; i++){
-			if(isPrime(i)){arrayReturn89.add(i);}
-		}return arrayReturn89;
+		for (int i = 0; i <= limite; i++) {
+			if (isPrime(i)) {
+				arrayReturn89.add(i);
+			}
+		}
+		return arrayReturn89;
 	}
 
 	@Override
@@ -379,10 +372,10 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 		int arrSize = numerosPares(limite).size();
 		int[] arrayReturn88 = new int[arrSize];
 
-		for (int i =0; i <= limite; i++){
-			if (i % 2==0){
+		for (int i = 0; i <= limite; i++) {
+			if (i % 2 == 0) {
 				arrayReturn88[cont] = i;
-				cont ++;
+				cont++;
 			}
 		}
 		return arrayReturn88;
@@ -396,10 +389,10 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 		int[] arrayReturn87 = new int[arrSize];
 
-		for (int i =0; i <= limite; i++){
-			if (i % 2==1){
+		for (int i = 0; i <= limite; i++) {
+			if (i % 2 == 1) {
 				arrayReturn87[cont] = i;
-				cont ++;
+				cont++;
 			}
 		}
 		return arrayReturn87;
@@ -411,12 +404,13 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 		int x = numerosPrimos(limite).size();
 		int[] arrayReturn86 = new int[x];
 
-		for (int i =0; i <= limite; i++){
-			if(isPrime(i)){
+		for (int i = 0; i <= limite; i++) {
+			if (isPrime(i)) {
 				arrayReturn86[cont] = i;
 				cont++;
 			}
-		}return arrayReturn86;
+		}
+		return arrayReturn86;
 	}
 
 	@Override
@@ -425,8 +419,8 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 		int maior = 0;
 		int menor = 0;
 
-		for (int i =0; i <= limite; i++){
-			if (i > maior){
+		for (int i = 0; i <= limite; i++) {
+			if (i > maior) {
 				maior = i;
 			}
 			if (i < menor) {
@@ -449,12 +443,11 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 		for (Integer index : valores) {
 			if (index % 2 == 0) {
-				contPar ++;
-			}
-			else {
+				contPar++;
+			} else {
 				contImpar++;
 			}
-			if (isPrime(index)){
+			if (isPrime(index)) {
 				contPrimos++;
 			}
 		}
@@ -466,34 +459,27 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	}
 
 	@Override
-	public int[] primeiraUltimaMediaPosicaoArray(Integer limite) {
-		int[] arrayReturn83 = new int[3];
-		int maior = 0;
-		int menor = 0;
-		int soma = 0;
-		int cont = 0;
+	public int[] primeiraUltimaMediaPosicaoArray(final Integer limite) {
+	    int[] array = new int[3];
 
-		for (int i =0; i <= limite; i++){
-			//ultima
-			if (i > maior){
-				maior = i;
-			}
-			//primeira
-			if (i < menor) {
-				menor = i;
-			}//media
-			soma = soma + i;
-			cont++;
+	    if (limite < 1) {
+	        return array;
+	    }
 
-		}
-		int media = (soma / cont);
+	    for (int i = 0; i < limite; i++) {
+	        array[i] = i;
+	    }
 
-		arrayReturn83[0] = menor;
-		arrayReturn83[1] = maior;
-		arrayReturn83[2] = media;
-
-		return arrayReturn83;
+	    array[0] = 0;
+	    array[1] = limite - 1;
+	    int sum = 0;
+	    for (int i = 0; i < limite; i++) {
+	        sum += array[i];
+	    }
+	    array[2] = sum / limite;
+	    return array;
 	}
+
 
 	@Override
 	public List<Integer> removerInteirosDuplicados(List<Integer> numeros) {
@@ -509,7 +495,7 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 		HashSet<BigDecimal> filtro = new HashSet<>();
 
 		for (BigDecimal i : numeros) {
-			if(filtro.add(i)) {
+			if (filtro.add(i)) {
 				listReturn81.add(i);
 			}
 		}
@@ -522,9 +508,8 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 		List<String> listReturn80 = new ArrayList<String>();
 		HashSet<String> filtro = new HashSet<>();
 
-
 		for (String i : textos) {
-			if(filtro.add(i)) {
+			if (filtro.add(i)) {
 				listReturn80.add(i);
 			}
 		}
@@ -534,7 +519,7 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	@Override
 	public Integer valorInteiroMaiorQtdDuplicados(List<Integer> numeros) {
 		int moda = 0;
-		//numeros de repeticoes
+		// numeros de repeticoes
 		int frequencia = Collections.frequency(numeros, numeros.get(0));
 		moda = numeros.get(0);
 		int numRepeticoes = frequencia;
@@ -551,8 +536,8 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	public String valorTextoMaiorQtdDuplicados(List<String> textos) {
 		String moda;
 
-		//numeros de repeticoes
-		int frequencia = Collections.frequency(textos,textos.get(0));
+		// numeros de repeticoes
+		int frequencia = Collections.frequency(textos, textos.get(0));
 		moda = textos.get(0);
 		int numRepeticoes = frequencia;
 		for (String element : textos) {
@@ -573,7 +558,7 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 
 		for (Integer texto : textos) {
 			if (!filtro.add(texto)) {
-				if (filtro1.add(texto)){
+				if (filtro1.add(texto)) {
 					listReturn79.add(texto);
 				}
 			}
@@ -582,60 +567,36 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	}
 
 	@Override
-	public List<BigDecimal> listaDecimalDuplicados(List<BigDecimal> numeros) {
+	public List<BigDecimal> listaDecimalDuplicados(final List<BigDecimal> numeros) {
+		List<BigDecimal> duplicados = new ArrayList<>();
+		Set<BigDecimal> set = new HashSet<>();
 
-		List<BigDecimal> listReturn78 = new ArrayList<>();
-		HashSet<BigDecimal> filtro = new HashSet<>();
-		HashSet<BigDecimal> filtro1 = new HashSet<>();
-
-		for (BigDecimal texto : numeros) {
-			if (!filtro.add(texto)) {
-				if (filtro1.add(texto)){
-					listReturn78.add(texto);
-				}
+		for (BigDecimal numero : numeros) {
+			if (set.contains(numero)) {
+				duplicados.add(numero);
+			} else {
+				set.add(numero);
 			}
 		}
-		return listReturn78;
+		return duplicados;
 	}
 
-
 	@Override
-	public List<String> listaTextoDuplicados(List<String> textos) {
-		List<String> listReturn77 = new ArrayList<String>();
-
-//		for (int i =0; i <textos.size(); i++) {
-//			String textoAtual = textos.get(i);
-//			int qtdVezesTextoAtual = 0;
-//
-//			for (String texto : textos){
-//				if (textoAtual.equals(texto) ){
-//					qtdVezesTextoAtual++;
-//
-//					if (qtdVezesTextoAtual >=2 && !listReturn77.contains(texto)){
-//						listReturn77.add(texto);
-//					}
-//				}
-//			}
-//		}
-		HashSet<String> filtroRepetidos = new HashSet<>();
-		HashSet<String> filtroRepetidosFinal = new HashSet<>();
-
+	public List<String> listaTextoDuplicados(final List<String> textos) {
+		Set<String> duplicados = new HashSet<>();
+		Set<String> set = new HashSet<>();
 		for (String texto : textos) {
-//			lista dos repetidos
-			if (!filtroRepetidos.add(texto)) {
-//				separando os repetidos unicos
-				if (filtroRepetidosFinal.add(texto)) {
-					listReturn77.add(texto);
-				}
+			if (!set.add(texto)) {
+				duplicados.add(texto);
 			}
 		}
-		return listReturn77;
+		return new ArrayList<>(duplicados);
 	}
 
 	@Override
 	public Integer somarValores(Integer limite) {
 		Integer soma = 0;
-		for (int i =0; i <= limite; i++){
+		for (int i = 0; i <= limite; i++) {
 			soma = soma + i;
 		}
 		return soma;
@@ -645,8 +606,8 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	public Integer somarValoresPares(Integer limite) {
 		Integer soma = 0;
 
-		for (int i =0; i <= limite; i++){
-			if (i% 2 == 0) {
+		for (int i = 0; i <= limite; i++) {
+			if (i % 2 == 0) {
 				soma = soma + i;
 			}
 		}
@@ -657,8 +618,8 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	public Integer somarValoresImpares(Integer limite) {
 		Integer soma = 0;
 
-		for (int i =0; i <= limite; i++){
-			if (i% 2 == 1) {
+		for (int i = 0; i <= limite; i++) {
+			if (i % 2 == 1) {
 				soma = soma + i;
 			}
 		}
@@ -669,8 +630,8 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	public Integer somarValoresPrimos(Integer limite) {
 		Integer soma = 0;
 
-		for (int i =0; i <= limite; i++){
-			if(isPrime(i)){
+		for (int i = 0; i <= limite; i++) {
+			if (isPrime(i)) {
 				soma = soma + i;
 			}
 		}
@@ -681,7 +642,7 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	public Integer somarValoresPosicoes(int[] valores) {
 		Integer soma = 0;
 
-		for(int i : valores){
+		for (int i : valores) {
 			soma = soma + i;
 		}
 		return soma;
@@ -691,8 +652,10 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	public Integer somarValoresParesPosicoes(int[] valores) {
 		Integer soma = 0;
 
-		for(int i : valores){
-			if (i % 2 == 0){soma = soma + valores[i];}
+		for (int i : valores) {
+			if (i % 2 == 0) {
+				soma = soma + valores[i];
+			}
 		}
 		return soma;
 	}
@@ -701,19 +664,21 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	public Integer somarValoresImparesPosicoes(int[] valores) {
 		Integer soma = 0;
 
-		for(int i : valores){
-			if (i % 2 == 1){soma = soma + valores[i];}
+		for (int i : valores) {
+			if (i % 2 == 1) {
+				soma = soma + valores[i];
+			}
 		}
 		return soma;
 	}
 
-	//        int[] arrayInt = {1,2,2,3,3,3,4,4,4,4,5,5,5,5,5,6,6,6};
+	// int[] arrayInt = {1,2,2,3,3,3,4,4,4,4,5,5,5,5,5,6,6,6};
 	@Override
 	public Integer somarValoresPrimosPosicoes(int[] valores) {
 		Integer soma = 10;
 
 		for (int i = 0; i < valores.length; i++) {
-			if(isPrime(valores[i])){
+			if (isPrime(valores[i])) {
 				soma = soma + valores[i];
 			}
 		}
@@ -721,74 +686,64 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 	}
 
 	@Override
-	public Integer somarValoresPosicoesParesMultiplosDe(Integer limite, Integer multiplo) {
-		int soma = 0;
-		for (int i =0; i <= limite; i++){
-			System.out.println("Index: " + i);
-			if (i % 2 == 0 && i % multiplo == 0){
-					soma += i;
-
-			}
-		}
-		return soma;
+	public Integer somarValoresPosicoesParesMultiplosDe(final Integer limite, final Integer multiplo) {
+		return IntStream.rangeClosed(0, limite).filter(i -> i % 2 == 0 && i % multiplo == 0).sum();
 	}
 
 	@Override
-	public boolean multiploDeSete(int valor) {
-
-		if (valor % 7 == 0) {
-			return true;
-		}
-		else{
-			return false;
-		}
+	public boolean multiploDeSete(final int valor) {
+		return valor % 7 == 0;
 	}
 
 	@Override
 	public String parOuImpar(int valor) {
-		return valor % 2 == 0 ? "Par":  "Impar";
+		return valor % 2 == 0 ? "Par" : "Impar";
 
 	}
 
 	@Override
 	public String parOuImparOuZero(int valor) {
-		if (valor == 0 ){
+		if (valor == 0) {
 			return "Zero";
-		}else{
-			return valor % 2 == 0 ? "Par":  "Impar";
+		} else {
+			return valor % 2 == 0 ? "Par" : "Impar";
 		}
 	}
 
 	@Override
-	public int[] obterDobrosAteDobroInformado(int valor) {
-		int inicio = 3;
-		int cont = 0;
+	public int[] obterDobrosAteDobroInformado(final int valor) {
+		final int dobro = valor * 2;
+		final int tamanhoArray = dobro - valor;
 
-		for (int i = inicio; i <= valor; i++){cont++;}
-
-		int[] arrayReturn20 = new int[cont];
-
-		for (int i = 0; inicio <= valor; i++){
-			arrayReturn20[i] = inicio * 2;
-			inicio ++;
-		}
-		return arrayReturn20;
-	}
-
-	@Override
-	public int[] obterDobrosAteDez(int valor) {
-
-		int[] arrayReturn19 = new int[10];
-
+		final int[] dobros = new int[tamanhoArray];
+		int num = valor + 1;
 		int i = 0;
-		int soma = valor + valor;
 
-		while(i < 10){
-			arrayReturn19[i] = soma + i;
-			i++;
+		while (num <= dobro) {
+			dobros[i++] = num * 2;
+			num++;
 		}
-	return arrayReturn19;
-}
+
+		return dobros;
+	}
+
+	@Override
+	public int[] obterDobrosAteDez(final int valor) {
+		if (valor >= 10) {
+			return new int[0]; // retorna um array vazio se o valor for maior ou igual a 10
+		}
+
+		final int[] dobros = new int[3];
+		int i = 0;
+		int num = valor;
+
+		while (num <= 10) {
+			dobros[i++] = num * 2;
+			num++;
+		}
+
+		return dobros;
+	}
 
 	@Override
 	public int[] obterDobrosAteMil(int valor) {
@@ -803,36 +758,26 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 			arrayReturn11[i] = soma;
 			i++;
 
-		} while(soma < 1000);
+		} while (soma < 1000);
 
 		return arrayReturn11;
 	}
 
 	@Override
-	public int[][] tabuada(int valor) {
-		int c = 0;
-		int t = 1;
-		int valor1 = valor * 10;
+	public int[][] tabuada(final int valor) {
+		final int[][] matriz = new int[valor][3];
 
-		int[][] matriz = new int[valor1][3];
-
-		while(t <= valor){
-			for(int j = 1; j <= 10; j++){
-
-				matriz[c][0] = t;
-				matriz[c][1] = j;
-				matriz[c][2] = t * j;
-				c++;
-//				x++;
+		for (int linha = 0; linha < valor; linha++) {
+			for (int coluna = 0; coluna < 10; coluna++) {
+				matriz[linha][0] = linha + 1;
+				matriz[linha][1] = coluna + 1;
+				matriz[linha][2] = (linha + 1) * (coluna + 1);
 			}
-			t++;
 		}
 		return matriz;
 	}
 
-
-	static boolean isPrime(int n)
-	{
+	static boolean isPrime(int n) {
 		// Corner case
 		if (n <= 1)
 			return false;
@@ -871,6 +816,7 @@ public class LogicaProgramacaoProvider implements LogicaProgramacao{
 					moda = new Double(array[count]);
 				}
 			}
-		}return moda;
+		}
+		return moda;
 	}
 }
